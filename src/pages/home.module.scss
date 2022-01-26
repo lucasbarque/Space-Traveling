@@ -1,1 +1,53 @@
-// TODO
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+
+  button {
+    color: var(--pink);
+    background: none;
+    border: 0;
+    padding-top: 4.37rem;
+    transition: filter .2s;
+    font-weight: 700;
+
+    &:hover {
+      filter: brightness(0.9)
+    }
+  }
+}
+
+.postItem {
+  strong {
+    font-weight: 700;
+    font-size: 1.75rem;
+  }
+
+  p {
+    color: var(--gray-500);
+    padding-top: 0.62rem;
+  }
+
+  .infos {
+    display: flex;
+    font-size: 0.87rem;
+    color: var(--gray-700);
+    padding-top: 0.62rem;
+
+    div + div {
+      padding-left: 1rem;
+    }
+
+    div {
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      span {
+        padding-left: 0.5rem;
+      }
+    }
+  }
+}
