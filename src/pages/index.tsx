@@ -11,6 +11,7 @@ import { RichText } from 'prismic-dom';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 
+import { useEffect, useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 // import commonStyles from '../styles/common.module.scss';
@@ -36,6 +37,54 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const formattedPost = postsPagination.results.map(post => {
+    return {
+      ...post,
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM yyyy',
+        {
+          locale: ptBR,
+        }
+      ),
+    };
+  });
+
+  const [posts, setPosts] = useState<Post[]>(formattedPost);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  async function handleNextPage(): Promise<void> {
+    if (currentPage !== 1 && nextPage === null) {
+      return;
+    }
+
+    const postsResults = await fetch(`${nextPage}`).then(response =>
+      response.json()
+    );
+
+    const newPosts = postsResults.results.map(post => {
+      return {
+        uid: post.uid,
+        first_publication_date: format(
+          new Date(post.first_publication_date),
+          'dd MMM yyyy',
+          {
+            locale: ptBR,
+          }
+        ),
+        data: {
+          title: RichText.asText(post.data.title),
+          subtitle: RichText.asText(post.data.subtitle),
+          author: RichText.asText(post.data.author),
+        },
+      };
+    });
+    setNextPage(postsResults.next_page);
+    setCurrentPage(postsResults.page);
+    setPosts([...posts, ...newPosts]);
+  }
+
   return (
     <>
       <Head>
@@ -43,7 +92,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       </Head>
       <main className={styles.container}>
         <div className={styles.content}>
-          {postsPagination.results.map(post => (
+          {posts.map(post => (
             <Link href={`/post/${post.uid}`} key={post.uid}>
               <a className={styles.postItem}>
                 <strong>{post.data.title}</strong>
@@ -70,26 +119,22 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             </Link>
           ))}
         </div>
-        <button type="button">Carregar mais posts</button>
+        {nextPage && (
+          <button onClick={handleNextPage} type="button">
+            Carregar mais posts
+          </button>
+        )}
       </main>
     </>
   );
 }
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query(
     [Prismic.predicates.at('document.type', 'posts')],
     {
-      fetch: ['title'],
-      pageSize: 10,
+      pageSize: 2,
     }
   );
 
@@ -105,12 +150,16 @@ export const getStaticProps: GetStaticProps = async () => {
     };
   });
 
+  const postsPagination = {
+    next_page: postsResponse.next_page,
+    results: posts,
+  };
+
+  console.log(postsResponse);
+
   return {
     props: {
-      postsPagination: {
-        next_page: 1,
-        results: posts,
-      },
+      postsPagination,
     },
   };
 };
