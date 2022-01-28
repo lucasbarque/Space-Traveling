@@ -1,13 +1,13 @@
 .container {
-  max-width: 1120px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 5rem 2rem;
+  padding: 0 2rem;
 
   button {
     color: var(--pink);
     background: none;
     border: 0;
-    padding-top: 4.37rem;
+    padding-top: 2.37rem;
     transition: filter .2s;
     font-weight: 700;
 
@@ -18,6 +18,9 @@
 }
 
 .postItem {
+  padding-bottom: 3rem;
+  display: block;
+
   strong {
     font-weight: 700;
     font-size: 1.75rem;
@@ -34,7 +37,7 @@
     color: var(--gray-700);
     padding-top: 0.62rem;
 
-    div + div {
+    div+div {
       padding-left: 1rem;
     }
 

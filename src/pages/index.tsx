@@ -5,7 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 
 import Prismic from '@prismicio/client';
-import { GetStaticProps } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { RichText } from 'prismic-dom';
 
 import { format } from 'date-fns';
@@ -42,37 +42,46 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
         <title>Home | Space Traveling</title>
       </Head>
       <main className={styles.container}>
-        {postsPagination.results.map(post => (
-          <Link href={`/post/${post.uid}`} key={post.uid}>
-            <a className={styles.postItem}>
-              <strong>{post.data.title}</strong>
-              <p>{post.data.subtitle}</p>
-              <div className={styles.infos}>
-                <div>
-                  <FiCalendar />
-                  <span>
-                    {format(
-                      new Date(post.first_publication_date),
-                      'dd MMM yyyy',
-                      {
-                        locale: ptBR,
-                      }
-                    )}
-                  </span>
+        <div className={styles.content}>
+          {postsPagination.results.map(post => (
+            <Link href={`/post/${post.uid}`} key={post.uid}>
+              <a className={styles.postItem}>
+                <strong>{post.data.title}</strong>
+                <p>{post.data.subtitle}</p>
+                <div className={styles.infos}>
+                  <div>
+                    <FiCalendar />
+                    <span>
+                      {format(
+                        new Date(post.first_publication_date),
+                        'dd MMM yyyy',
+                        {
+                          locale: ptBR,
+                        }
+                      )}
+                    </span>
+                  </div>
+                  <div>
+                    <FiUser />
+                    <span>{post.data.author}</span>
+                  </div>
                 </div>
-                <div>
-                  <FiUser />
-                  <span>{post.data.author}</span>
-                </div>
-              </div>
-            </a>
-          </Link>
-        ))}
+              </a>
+            </Link>
+          ))}
+        </div>
         <button type="button">Carregar mais posts</button>
       </main>
     </>
   );
 }
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
