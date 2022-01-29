@@ -2,10 +2,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable react/no-danger */
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { RichText } from 'prismic-dom';
 
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
+import { RichText } from 'prismic-dom';
 
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -36,6 +36,12 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps): JSX.Element {
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return <h1>Carregando...</h1>;
+  }
+
   const totalWords = post.data.content.reduce((total, contentItem) => {
     total += contentItem.heading.split(' ').length;
 
@@ -44,12 +50,6 @@ export default function Post({ post }: PostProps): JSX.Element {
     return total;
   }, 0);
   const readTime = Math.ceil(totalWords / 200);
-
-  const router = useRouter();
-
-  if (router.isFallback) {
-    return <h1>Carregando...</h1>;
-  }
 
   const formattedDate = format(
     new Date(post.first_publication_date),
@@ -128,15 +128,15 @@ export const getStaticProps: GetStaticProps = async context => {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
     data: {
-      title: RichText.asText(response.data.title),
-      subtitle: RichText.asText(response.data.subtitle),
-      author: RichText.asText(response.data.author),
+      title: response.data.title,
+      subtitle: response.data.subtitle,
+      author: response.data.author,
       banner: {
         url: response.data.banner.url,
       },
       content: response.data.content.map(content => {
         return {
-          heading: RichText.asText(content.heading),
+          heading: content.heading,
           body: [...content.body],
         };
       }),
@@ -147,5 +147,6 @@ export const getStaticProps: GetStaticProps = async context => {
     props: {
       post,
     },
+    revalidate: 1800,
   };
 };
