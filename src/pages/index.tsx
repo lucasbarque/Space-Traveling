@@ -75,9 +75,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
           }
         ),
         data: {
-          title: post.data.title,
-          subtitle: post.data.subtitle,
-          author: post.data.author,
+          title: RichText.asText(post.data.title),
+          subtitle: RichText.asText(post.data.subtitle),
+          author: RichText.asText(post.data.author),
         },
       };
     });
@@ -127,7 +127,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const postsResponse = await prismic.query(
     [Prismic.Predicates.at('document.type', 'posts')],
     {
-      pageSize: 1,
+      pageSize: 3,
     }
   );
 
@@ -136,9 +136,9 @@ export const getStaticProps: GetStaticProps = async () => {
       uid: post.uid,
       first_publication_date: post.first_publication_date,
       data: {
-        title: post.data.title,
-        subtitle: post.data.subtitle,
-        author: post.data.author,
+        title: RichText.asText(post.data.title),
+        subtitle: RichText.asText(post.data.subtitle),
+        author: RichText.asText(post.data.author),
       },
     };
   });

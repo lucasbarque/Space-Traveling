@@ -13,6 +13,7 @@ import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
 import styles from './post.module.scss';
 import { getPrismicClient } from '../../services/prismic';
+import Header from '../../components/Header';
 
 interface Post {
   first_publication_date: string | null;
@@ -64,6 +65,7 @@ export default function Post({ post }: PostProps): JSX.Element {
       <Head>
         <title>{`${post.data.title} | Space Traveling`}</title>
       </Head>
+      <Header />
       <div className={styles.container}>
         <img src={post.data.banner.url} alt="Imagem do topo" />
         <div className={styles.content}>
@@ -128,15 +130,15 @@ export const getStaticProps: GetStaticProps = async context => {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
     data: {
-      title: response.data.title,
+      title: RichText.asText(response.data.title),
       subtitle: response.data.subtitle,
-      author: response.data.author,
+      author: RichText.asText(response.data.author),
       banner: {
         url: response.data.banner.url,
       },
       content: response.data.content.map(content => {
         return {
-          heading: content.heading,
+          heading: RichText.asText(content.heading),
           body: [...content.body],
         };
       }),
@@ -147,6 +149,6 @@ export const getStaticProps: GetStaticProps = async context => {
     props: {
       post,
     },
-    revalidate: 1800,
+    // revalidate: 10,
   };
 };
